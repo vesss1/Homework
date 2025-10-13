@@ -1,4 +1,4 @@
-41343127
+# 41343127
 ---
 作業一 
 
@@ -90,7 +90,8 @@ int main() {
 3. 記錄結果，與教學公式計算結果比對。  
 
 ---
-
+程式實作
+---
 ```cpp
 #include <iostream>
 using namespace std;
