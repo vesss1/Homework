@@ -2,7 +2,7 @@
 ---
 作業一 
 
-**Ackermann Function(遞迴方式)**
+## **Ackermann Function(遞迴方式)**
 
 **解題說明**
 
