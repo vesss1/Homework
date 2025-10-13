@@ -228,6 +228,7 @@ int main() {
 使用遞迴逐層選擇每個元素，直到處理完所有元素。
 
 ### 輸出範例
+
 $ g++ powerset.cpp -std=c++14 -o powerset (Visual Studio 2022 為C+14)
 $ powerset.exe
 (輸出):
