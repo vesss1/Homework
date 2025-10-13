@@ -55,3 +55,71 @@ int main() {
 這題剛開始看起來不難，但實際在跑的時候才發現 Ackermann 函數的遞迴層數非常深，一不小心就會超出系統限制。透過這次練習，我比較清楚地理解遞迴的執行順序，也學會用堆疊去模擬遞迴的過程。雖然程式不長，但要讓結果正確需要仔細追蹤變數的變化。整體來說，這題讓我更能體會到遞迴雖然簡潔，但效能和記憶體消耗都要特別注意。
 
 **非遞迴方式**
+---
+**解題說明**
+
+本程式以手動模擬堆疊的方式實作 Ackermann 函數，避免遞迴呼叫。
+使用兩個陣列 sx[]、sy[] 模擬函數堆疊過程。
+---
+**解題策略**
+
+這題的目標是把 Ackermann 函數改成「非遞迴」寫法。因為 Ackermann 函數本身是高度遞迴的，遞迴層數很深，所以直接呼叫會導致系統堆疊溢位。要解決這個問題，可以用「模擬堆疊」的方式來重現遞迴行為。
+基本想法是利用兩個陣列（sx[] 和 sy[]）來存放每次呼叫的 x、y 值，並用變數 top 來當作堆疊頂端的指標。每次根據條件（x == 0、y == 0 或一般情況）決定要不要壓入新狀態或回傳結果。
+另外在遞迴結束後，要小心處理「回傳階段」，讓前一層呼叫能拿到內層結果。這樣就能在不使用系統遞迴的情況下，完成同樣的運算流程。
+---
+```cpp
+#include <iostream>
+using namespace std;
+
+int A(int x, int y) {
+    int sx[10000], sy[10000]; // 模擬堆疊
+    int top = 0;
+    sx[top] = x;
+    sy[top] = y;
+
+    while (top >= 0) {
+        x = sx[top];
+        y = sy[top];
+        top--;
+
+        if (x == 0) {
+            y = y + 1;
+        } 
+        else if (y == 0) {
+            top++;
+            sx[top] = x - 1;
+            sy[top] = 1;
+            continue;
+        } 
+        else {
+            top++;
+            sx[top] = x - 1;
+            sy[top] = -1; // 標記等內層結果
+            top++;
+            sx[top] = x;
+            sy[top] = y - 1;
+            continue;
+        }
+
+        // 模擬回傳階段
+        while (top >= 0 && sy[top] == -1) {
+            x = sx[top];
+            top--;
+            top++;
+            sx[top] = x;
+            sy[top] = y;
+            break;
+        }
+    }
+    return y;
+}
+
+int main() {
+    int x, y;
+    cout << "Enter x and y: ";
+    cin >> x >> y;
+    cout << "Ackermann(" << x << "," << y << ") = " << A(x, y) << endl;
+    return 0;
+}
+```
+
