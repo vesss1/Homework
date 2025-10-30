@@ -184,8 +184,6 @@ int main()
 ```
 
 ---
-### 效能分析
----
 
 ## ⚙️ 效能分析 (Performance Analysis)
 
