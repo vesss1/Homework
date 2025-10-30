@@ -255,3 +255,45 @@ int main()
 | T5 | **大量項目（效能測試）** | **A, B 各含 1000 項** | **執行時間 < 0.01 秒** | **執行時間 < 0.01 秒** | **約 0.009 秒**
 
 ---
+
+# 申論及開發報告  
+
+## 選擇類別與動態陣列的原因  
+
+在本程式中，選擇以 **類別 (class)** 與 **動態記憶體配置** 來實作多項式加法的主要原因如下：  
+
+---
+
+### 1. 結構化設計、易於維護  
+透過建立 `Term` 與 `Polynomial` 類別，可以清楚劃分資料與行為。  
+`Term` 專注於儲存係數與次方，而 `Polynomial` 負責整體運算邏輯，使程式更具模組化與可擴充性。  
+
+---
+
+### 2. 動態記憶體更彈性  
+多項式的項數不固定，使用動態陣列 (`new/delete`) 可根據輸入自動擴充容量。  
+當容量不足時自動倍增，確保程式在不同資料量下仍能正常運作。  
+
+---
+
+### 3. 合併演算法清晰  
+多項式加法使用兩個指標逐步比較次方：  
+若相同則合併係數，若不同則加入較大次方的項。  
+此設計簡潔、直覺，時間複雜度為 `O(m + n)`，效能優良。  
+
+```cpp
+Polynomial Polynomial::Add(const Polynomial& b) const {
+    Polynomial c;
+    int aPos = 0, bPos = 0;
+    while (aPos < terms && bPos < b.terms) {
+        if (termArray[aPos].exp == b.termArray[bPos].exp)
+            c.newTerm(termArray[aPos].coef + b.termArray[bPos].coef, termArray[aPos].exp), aPos++, bPos++;
+        else if (termArray[aPos].exp > b.termArray[bPos].exp)
+            c.newTerm(termArray[aPos].coef, termArray[aPos++].exp);
+        else
+            c.newTerm(b.termArray[bPos].coef, b.termArray[bPos++].exp);
+    }
+    while (aPos < terms) c.newTerm(termArray[aPos].coef, termArray[aPos++].exp);
+    while (bPos < b.terms) c.newTerm(b.termArray[bPos].coef, b.termArray[bPos++].exp);
+    return c;
+}
