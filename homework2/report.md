@@ -19,3 +19,5 @@
 - 使用 Term 類別 來儲存「係數（coef）」與「次方（exp）」兩個屬性。
 - 使用 Polynomial 類別 管理多項式，由數個 Term 組成。
 - 不使用 vector，改以 固定大小陣列 或 動態配置陣列（new/delete） 來儲存所有項目。
+
+<hr style="height:4px;border:none;background:linear-gradient(to right, #999, #000, #999);">
