@@ -24,6 +24,7 @@ class ChainNode {
 public:
     T data;
     ChainNode<T>* link;
+
     ChainNode() : data(), link(nullptr) {}
     ChainNode(const T& d, ChainNode<T>* l = nullptr) : data(d), link(l) {}
 };
@@ -34,8 +35,6 @@ private:
     static ChainNode<T>* avail;
 
 public:
-    static bool IsEmpty() { return avail == nullptr; }
-
     static ChainNode<T>* GetNode() {
         if (avail) {
             ChainNode<T>* node = avail;
@@ -67,32 +66,13 @@ public:
     ChainIterator(ChainNode<T>* cur, ChainNode<T>* head) : current(cur), header(head) {}
 
     T& operator*() const { return current->data; }
-    T* operator->() const { return &(current->data); }
 
     ChainIterator& operator++() {
         current = current->link;
         return *this;
     }
 
-    ChainIterator operator++(int) {
-        ChainIterator tmp = *this;
-        current = current->link;
-        return tmp;
-    }
-
-    bool operator==(const ChainIterator& rhs) const { return current == rhs.current; }
     bool operator!=(const ChainIterator& rhs) const { return current != rhs.current; }
-
-    int operator-(const ChainIterator& rhs) const {
-        if (rhs.header != header) return -1;
-        int dist = 0;
-        ChainNode<T>* p = rhs.current;
-        while (p != current && p != header) {
-            p = p->link;
-            ++dist;
-        }
-        return (p == current) ? dist : -1;
-    }
 };
 
 template <class T>
@@ -106,7 +86,7 @@ public:
     using iterator = ChainIterator<T>;
 
     Chain() : header(new ChainNode<T>()), tail(nullptr), size(0) {
-        header->link = header; // circular
+        header->link = header; 
         tail = header;
     }
 
@@ -127,17 +107,14 @@ public:
 
     ~Chain() {
         Clear();
-        delete header;
+        delete header; 
         header = nullptr;
         tail = nullptr;
     }
 
-    bool IsEmpty() const { return size == 0; }
     int Size() const { return size; }
-
     iterator Begin() const { return iterator(header->link, header); }
     iterator End() const { return iterator(header, header); }
-
     ChainNode<T>* HeaderNode() const { return header; }
 
     void Clear() {
@@ -151,7 +128,6 @@ public:
         tail = header;
         size = 0;
     }
-
     ChainNode<T>* InsertAfter(ChainNode<T>* prev, const T& value) {
         ChainNode<T>* node = AvailableList<T>::GetNode();
         node->data = value;
@@ -173,7 +149,6 @@ public:
         AvailableList<T>::ReturnNode(target);
         --size;
     }
-
     void PushBack(const T& value) {
         InsertAfter(tail, value);
     }
@@ -188,7 +163,7 @@ private:
     };
 
     Chain<Term> terms;
-    // 整數次方：x^e（e>=0）
+
     static long long PowInt(long long x, int e) {
         long long r = 1;
         while (e > 0) {
@@ -205,6 +180,7 @@ private:
         ChainNode<Term>* head = terms.HeaderNode();
         ChainNode<Term>* prev = head;
         ChainNode<Term>* cur  = head->link;
+
         while (cur != head && cur->data.exp > exp) {
             prev = cur;
             cur = cur->link;
@@ -220,7 +196,6 @@ private:
 
         terms.InsertAfter(prev, Term(coef, exp));
     }
-
 public:
     Polynomial() = default;
     Polynomial(const Polynomial& a) : terms(a.terms) {}
@@ -230,9 +205,7 @@ public:
         terms = a.terms;
         return *this;
     }
-
     ~Polynomial() = default;
-
     Polynomial operator+(const Polynomial& b) const {
         Polynomial r;
 
@@ -240,6 +213,7 @@ public:
         ChainNode<Term>* h2 = b.terms.HeaderNode();
         ChainNode<Term>* p = h1->link;
         ChainNode<Term>* q = h2->link;
+
         while (p != h1 && q != h2) {
             if (p->data.exp == q->data.exp) {
                 int c = p->data.coef + q->data.coef;
@@ -259,14 +233,13 @@ public:
 
         return r;
     }
-
     Polynomial operator-(const Polynomial& b) const {
         Polynomial r;
+
         ChainNode<Term>* h1 = terms.HeaderNode();
         ChainNode<Term>* h2 = b.terms.HeaderNode();
         ChainNode<Term>* p = h1->link;
         ChainNode<Term>* q = h2->link;
-
         while (p != h1 && q != h2) {
             if (p->data.exp == q->data.exp) {
                 int c = p->data.coef - q->data.coef;
@@ -283,10 +256,8 @@ public:
         }
         while (p != h1) { r.terms.PushBack(p->data); p = p->link; }
         while (q != h2) { r.terms.PushBack(Term(-q->data.coef, q->data.exp)); q = q->link; }
-
         return r;
     }
-
     Polynomial operator*(const Polynomial& b) const {
         Polynomial r;
 
@@ -302,7 +273,6 @@ public:
         }
         return r;
     }
-
     long long Eval(int x) const {
         long long sum = 0;
         ChainNode<Term>* h = terms.HeaderNode();
@@ -311,6 +281,7 @@ public:
         }
         return sum;
     }
+
     friend istream& operator>>(istream& is, Polynomial& x) {
         int n;
         if (!(is >> n)) return is;
@@ -326,10 +297,20 @@ public:
     }
 
     friend ostream& operator<<(ostream& os, const Polynomial& x) {
-        os << x.terms.Size();
+        if (x.terms.Size() == 0) {
+            os << 0;
+            return os;
+        }
+
         ChainNode<Term>* h = x.terms.HeaderNode();
-        for (ChainNode<Term>* p = h->link; p != h; p = p->link) {
-            os << ' ' << p->data.coef << ' ' << p->data.exp;
+        ChainNode<Term>* p = h->link;
+
+        os << p->data.coef << "x^" << p->data.exp;
+        p = p->link;
+
+        while (p != h) {
+            os << " + " << p->data.coef << "x^" << p->data.exp;
+            p = p->link;
         }
         return os;
     }
@@ -340,7 +321,6 @@ int main() {
     Polynomial p1, p2;
     cin >> p1 >> p2;
     cin >> x;
-
     cout << "P1 = " << p1 << endl;
     cout << "P2 = " << p2 << endl;
     cout << "P1 + P2 = " << (p1 + p2) << endl;
@@ -348,7 +328,6 @@ int main() {
     cout << "P1 * P2 = " << (p1 * p2) << endl;
     cout << "P1(" << x << ") = " << p1.Eval(x) << endl;
     cout << "P2(" << x << ") = " << p2.Eval(x) << endl;
-
     return 0;
 }
 ```
