@@ -5,8 +5,17 @@
 ## **Max/Min Heap & Binary Search Tree**
 
 **解題說明**
+這題的重點是完成 heap 的基本功能，分別做出 MinHeap 和 MaxHeap。
 
+在 MinHeap 中，最小的元素會放在最上面；在 MaxHeap 中，最大的元素會放在最上面。
+程式在插入資料時，會先把新資料放到最後面，再往上比較與交換，讓整個結構維持正確。
+刪除頂端元素時，會先把最後一個元素補到最前面，再往下調整，讓 heap 回到原本應有的規則。
 
+這題實作的功能包含：
+* 判斷 heap 是否為空
+* 取得頂端元素
+* 插入新元素
+* 刪除頂端元素
 
 ---
 
@@ -168,7 +177,14 @@ int main() {
 ---
 
 ### 測試策略
+這題的測試方式，主要是確認 MinHeap 和 MaxHeap 是否都能正常運作。
 
+測試時先輸入一組整數資料，並把同一組資料同時放進 MinHeap 和 MaxHeap。
+
+| 測試案例 | 組數 | 測資 | MinHeap Tree | MaxHeap Tree |
+|---|---:|---|---|---|
+| 測試一 | 5 | 55 0 88 6 3 | Level 0: 0<br>Level 1: 3 88<br>Level 2: 55 6 | Level 0: 88<br>Level 1: 6 55<br>Level 2: 0 3 |
+| 測試二 | 7 | -1 44 -5 100 51 -101 8 | Level 0: -101<br>Level 1: 44 -5<br>Level 2: 100 51 -1<br>Level 3: 8 | Level 0: 100<br>Level 1: 51 8<br>Level 2: -1 44 -101<br>Level 3: -5 |
 
 ---
 
