@@ -272,6 +272,268 @@ MinHeap 可以正確保留最小值在最上面，MaxHeap 可以正確保留最�
 
 ---
 
+### 程式設計 (a) 
+```cpp
+#include <cmath>
+#include <iostream>
+#include <random>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int x) {
+        data = x;
+        left = NULL;
+        right = NULL;
+    }
+};
+
+class BST {
+private:
+    Node* root;
+
+    Node* insert(Node* node, int x) {
+        if (node == NULL) {
+            return new Node(x);
+        }
+
+        if (x < node->data) {
+            node->left = insert(node->left, x);
+        }
+        else {
+            node->right = insert(node->right, x);
+        }
+
+        return node;
+    }
+
+    int height(Node* node) {
+        if (node == NULL) {
+            return 0;
+        }
+
+        int lh = height(node->left);
+        int rh = height(node->right);
+
+        if (lh > rh) {
+            return lh + 1;
+        }
+        else {
+            return rh + 1;
+        }
+    }
+
+    void clear(Node* node) {
+        if (node == NULL) {
+            return;
+        }
+
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+
+public:
+    BST() {
+        root = NULL;
+    }
+
+    ~BST() {
+        clear(root);
+    }
+
+    void insert(int x) {
+        root = insert(root, x);
+    }
+
+    int getHeight() {
+        return height(root);
+    }
+};
+
+int main() {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> dist(1, 1000000);
+
+    cout << "n\theight\theight/log2(n)" << endl;
+
+    for (int n = 100; n <= 10000; ) {
+        BST tree;
+
+        for (int i = 0; i < n; i++) {
+            int x = dist(gen);
+            tree.insert(x);
+        }
+
+        int h = tree.getHeight();
+        double ratio = h / log2((double)n);
+
+        cout << n << '\t' << h << '\t' << ratio << endl;
+
+        if (n == 100) {
+            n = 500;
+        }
+        else {
+            n += 500;
+        }
+    }
+
+    return 0;
+}
+```
+---
+
+### 程式設計 (b) 
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int x) {
+        data = x;
+        left = NULL;
+        right = NULL;
+    }
+};
+
+class BST {
+private:
+    Node* root;
+
+    Node* insert(Node* node, int x) {
+        if (node == NULL) {
+            return new Node(x);
+        }
+
+        if (x < node->data) {
+            node->left = insert(node->left, x);
+        }
+        else if (x > node->data) {
+            node->right = insert(node->right, x);
+        }
+
+        return node;
+    }
+
+    Node* findMin(Node* node) {
+        while (node->left != NULL) {
+            node = node->left;
+        }
+        return node;
+    }
+
+    Node* remove(Node* node, int k) {
+        if (node == NULL) {
+            return NULL;
+        }
+
+        if (k < node->data) {
+            node->left = remove(node->left, k);
+        }
+        else if (k > node->data) {
+            node->right = remove(node->right, k);
+        }
+        else {
+            if (node->left == NULL && node->right == NULL) {
+                delete node;
+                return NULL;
+            }
+            else if (node->left == NULL) {
+                Node* temp = node->right;
+                delete node;
+                return temp;
+            }
+            else if (node->right == NULL) {
+                Node* temp = node->left;
+                delete node;
+                return temp;
+            }
+            else {
+                Node* temp = findMin(node->right);
+                node->data = temp->data;
+                node->right = remove(node->right, temp->data);
+            }
+        }
+
+        return node;
+    }
+
+    void inorder(Node* node) {
+        if (node == NULL) {
+            return;
+        }
+
+        inorder(node->left);
+        cout << node->data << " ";
+        inorder(node->right);
+    }
+
+    void clear(Node* node) {
+        if (node == NULL) {
+            return;
+        }
+
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+
+public:
+    BST() {
+        root = NULL;
+    }
+
+    ~BST() {
+        clear(root);
+    }
+
+    void insert(int x) {
+        root = insert(root, x);
+    }
+
+    void remove(int k) {
+        root = remove(root, k);
+    }
+
+    void print() {
+        inorder(root);
+        cout << endl;
+    }
+};
+
+int main() {
+    BST tree;
+
+    tree.insert(50);
+    tree.insert(30);
+    tree.insert(70);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(60);
+    tree.insert(80);
+
+    cout << "Before delete: ";
+    tree.print();
+
+    tree.remove(50);
+
+    cout << "After delete: ";
+    tree.print();
+
+    return 0;
+}
+```
 ## 心得與問題
 
 
