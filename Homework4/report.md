@@ -176,14 +176,14 @@ int main() {
 
 ---
 
-### 測試策略
+### 測試與驗證
 這題的測試方式，主要是確認 MinHeap 和 MaxHeap 是否都能正常運作。
 
 測試時先輸入一組整數資料，並把同一組資料同時放進 MinHeap 和 MaxHeap。
 
 | 測試案例 | 組數 | 測資 | MinHeap Tree | MaxHeap Tree |
 |---|---:|---|---|---|
-| 測試一 | 5 | 55 0 88 6 3 | Level 0: 0<br>Level 1: 3 88<br>Level 2: 55 6 | Level 0: 88<br>Level 1: 6 55<br>Level 2: 0 3 |
+| 測試一 | 5 | 9 3 7 1 6 | Level 0: 1<br>Level 1: 3 7<br>Level 2: 9 6 | Level 0: 9<br>Level 1: 6 7<br>Level 2: 1 3 |
 | 測試二 | 7 | -1 44 -5 100 51 -101 8 | Level 0: -101<br>Level 1: 44 -5<br>Level 2: 100 51 -1<br>Level 3: 8 | Level 0: 100<br>Level 1: 51 8<br>Level 2: -1 44 -101<br>Level 3: -5 |
 
 ---
