@@ -13,7 +13,7 @@
 
 ### 功能部分，包含：  
 
-- 用 DFS 和 BFS 來走訪圖  
+- **用 DFS 和 BFS 來走訪圖  **
 - 找出無向圖的連通分量  
 - 建立生成樹（Spanning Tree）  
 - 用 Kruskal 和 Prim 找最小生成樹  
