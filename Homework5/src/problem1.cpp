@@ -13,11 +13,16 @@ struct Edge {
 };
 
 int n, m, dir;
-long long g[N][N];   // 鄰接矩陣
-bool vis[N];         // 紀錄有沒有走過
-Edge edge[E];        // 邊的資料
+long long g[N][N];
+bool vis[N];
+Edge edge[E];
 
-// 深度優先搜尋
+// biconnected 用
+int dfn[N], low[N], timerCnt;
+Edge stk[E];
+int topStack;
+
+// DFS
 void dfs(int x) {
     vis[x] = true;
     cout << x << " ";
@@ -29,7 +34,7 @@ void dfs(int x) {
     }
 }
 
-// 廣度優先搜尋
+// BFS
 void bfs(int s) {
     int q[N];
     int l = 0, r = 0;
@@ -50,7 +55,7 @@ void bfs(int s) {
     }
 }
 
-// 找連通分量
+// 連通分量
 void components() {
     if (dir == 1) {
         cout << "Only for undirected graph\n";
@@ -70,19 +75,52 @@ void components() {
     }
 }
 
-// 找集合代表
+// DFS 產生樹
+void spanningTree() {
+    if (dir == 1) {
+        cout << "Only for undirected graph\n";
+        return;
+    }
+
+    int s;
+    cout << "Start vertex: ";
+    cin >> s;
+
+    int q[N];
+    int l = 0, r = 0;
+
+    memset(vis, false, sizeof(vis));
+
+    q[r++] = s;
+    vis[s] = true;
+
+    cout << "Spanning tree edges:\n";
+
+    while (l < r) {
+        int x = q[l++];
+
+        for (int i = 0; i < n; i++) {
+            if (g[x][i] != INF && x != i && !vis[i]) {
+                vis[i] = true;
+                q[r++] = i;
+                cout << x << " - " << i << endl;
+            }
+        }
+    }
+}
+
+// union find
 int findp(int p[], int x) {
     if (p[x] == x) return x;
     p[x] = findp(p, p[x]);
     return p[x];
 }
 
-// 依照權重排序
 bool cmp(Edge a, Edge b) {
     return a.w < b.w;
 }
 
-// Kruskal 最小生成樹
+// Kruskal
 void kruskal() {
     if (dir == 1) {
         cout << "Only for undirected graph\n";
@@ -104,7 +142,7 @@ void kruskal() {
     long long sum = 0;
     int cnt = 0;
 
-    cout << "MST edges:\n";
+    cout << "Kruskal MST edges:\n";
 
     for (int i = 0; i < m; i++) {
         int a = findp(p, e2[i].u);
@@ -126,7 +164,62 @@ void kruskal() {
     cout << "Total = " << sum << endl;
 }
 
-// Dijkstra 單一起點最短路徑
+// Prim
+void prim() {
+    if (dir == 1) {
+        cout << "Only for undirected graph\n";
+        return;
+    }
+
+    int s;
+    cout << "Start vertex: ";
+    cin >> s;
+
+    long long d[N];
+    int parent[N];
+    bool used[N];
+
+    for (int i = 0; i < n; i++) {
+        d[i] = INF;
+        parent[i] = -1;
+        used[i] = false;
+    }
+
+    d[s] = 0;
+    long long sum = 0;
+
+    cout << "Prim MST edges:\n";
+
+    for (int k = 0; k < n; k++) {
+        int x = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (!used[i] && (x == -1 || d[i] < d[x])) {
+                x = i;
+            }
+        }
+
+        if (x == -1 || d[x] == INF) break;
+
+        used[x] = true;
+        sum += d[x];
+
+        if (parent[x] != -1) {
+            cout << parent[x] << " - " << x << " : " << d[x] << endl;
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (!used[i] && g[x][i] != INF && g[x][i] < d[i]) {
+                d[i] = g[x][i];
+                parent[i] = x;
+            }
+        }
+    }
+
+    cout << "Total = " << sum << endl;
+}
+
+// Dijkstra
 void dijkstra(int s) {
     long long d[N];
     bool used[N];
@@ -141,7 +234,6 @@ void dijkstra(int s) {
     for (int k = 0; k < n; k++) {
         int x = -1;
 
-        // 找目前距離最小的點
         for (int i = 0; i < n; i++) {
             if (!used[i] && (x == -1 || d[i] < d[x])) {
                 x = i;
@@ -152,7 +244,6 @@ void dijkstra(int s) {
 
         used[x] = true;
 
-        // 更新距離
         for (int i = 0; i < n; i++) {
             if (g[x][i] != INF && d[x] + g[x][i] < d[i]) {
                 d[i] = d[x] + g[x][i];
@@ -167,18 +258,76 @@ void dijkstra(int s) {
     }
 }
 
-// Floyd-Warshall 所有點對最短路徑
+// Bellman-Ford
+void bellmanFord(int s) {
+    long long d[N];
+
+    for (int i = 0; i < n; i++) {
+        d[i] = INF;
+    }
+
+    d[s] = 0;
+
+    for (int k = 0; k < n - 1; k++) {
+        for (int i = 0; i < m; i++) {
+            int a = edge[i].u;
+            int b = edge[i].v;
+            long long w = edge[i].w;
+
+            if (d[a] != INF && d[a] + w < d[b]) {
+                d[b] = d[a] + w;
+            }
+
+            if (dir == 0) {
+                if (d[b] != INF && d[b] + w < d[a]) {
+                    d[a] = d[b] + w;
+                }
+            }
+        }
+    }
+
+    bool neg = false;
+
+    for (int i = 0; i < m; i++) {
+        int a = edge[i].u;
+        int b = edge[i].v;
+        long long w = edge[i].w;
+
+        if (d[a] != INF && d[a] + w < d[b]) {
+            neg = true;
+        }
+
+        if (dir == 0) {
+            if (d[b] != INF && d[b] + w < d[a]) {
+                neg = true;
+            }
+        }
+    }
+
+    if (neg) {
+        cout << "Negative cycle found\n";
+        return;
+    }
+
+    cout << "Bellman-Ford:\n";
+
+    for (int i = 0; i < n; i++) {
+        cout << s << " to " << i << " = ";
+        if (d[i] == INF) cout << "INF\n";
+        else cout << d[i] << endl;
+    }
+}
+
+// Floyd
 void floyd() {
     long long d[N][N];
 
-    // 複製原本的矩陣
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             d[i][j] = g[i][j];
         }
     }
 
-    // 嘗試經過中繼點 k
     for (int k = 0; k < n; k++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -206,7 +355,6 @@ void floyd() {
 void reach() {
     int r[N][N];
 
-    // 先記錄直接可達
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (g[i][j] != INF) r[i][j] = 1;
@@ -214,7 +362,6 @@ void reach() {
         }
     }
 
-    // 利用中繼點判斷是否可達
     for (int k = 0; k < n; k++) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -236,7 +383,241 @@ void reach() {
     }
 }
 
-// 印出鄰接矩陣
+// AOV 拓撲排序
+void aov() {
+    if (dir == 0) {
+        cout << "AOV needs directed graph\n";
+        return;
+    }
+
+    int indeg[N];
+    int q[N];
+    int l = 0, r = 0;
+    int ans[N];
+    int cnt = 0;
+
+    memset(indeg, 0, sizeof(indeg));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i != j && g[i][j] != INF) {
+                indeg[j]++;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (indeg[i] == 0) {
+            q[r++] = i;
+        }
+    }
+
+    while (l < r) {
+        int x = q[l++];
+        ans[cnt++] = x;
+
+        for (int i = 0; i < n; i++) {
+            if (x != i && g[x][i] != INF) {
+                indeg[i]--;
+
+                if (indeg[i] == 0) {
+                    q[r++] = i;
+                }
+            }
+        }
+    }
+
+    if (cnt != n) {
+        cout << "Graph has cycle\n";
+        return;
+    }
+
+    cout << "Topological order:\n";
+
+    for (int i = 0; i < cnt; i++) {
+        cout << ans[i];
+        if (i != cnt - 1) cout << " ";
+    }
+
+    cout << endl;
+}
+
+// AOE 關鍵路徑
+void aoe() {
+    if (dir == 0) {
+        cout << "AOE needs directed graph\n";
+        return;
+    }
+
+    int indeg[N];
+    int q[N];
+    int topo[N];
+    int l = 0, r = 0, cnt = 0;
+
+    memset(indeg, 0, sizeof(indeg));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i != j && g[i][j] != INF) {
+                indeg[j]++;
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (indeg[i] == 0) {
+            q[r++] = i;
+        }
+    }
+
+    while (l < r) {
+        int x = q[l++];
+        topo[cnt++] = x;
+
+        for (int i = 0; i < n; i++) {
+            if (x != i && g[x][i] != INF) {
+                indeg[i]--;
+
+                if (indeg[i] == 0) {
+                    q[r++] = i;
+                }
+            }
+        }
+    }
+
+    if (cnt != n) {
+        cout << "Graph has cycle, cannot do AOE\n";
+        return;
+    }
+
+    long long ve[N], vl[N];
+
+    for (int i = 0; i < n; i++) {
+        ve[i] = 0;
+    }
+
+    for (int i = 0; i < n; i++) {
+        int x = topo[i];
+
+        for (int j = 0; j < n; j++) {
+            if (x != j && g[x][j] != INF) {
+                ve[j] = max(ve[j], ve[x] + g[x][j]);
+            }
+        }
+    }
+
+    long long projectTime = 0;
+
+    for (int i = 0; i < n; i++) {
+        projectTime = max(projectTime, ve[i]);
+    }
+
+    for (int i = 0; i < n; i++) {
+        vl[i] = projectTime;
+    }
+
+    for (int i = n - 1; i >= 0; i--) {
+        int x = topo[i];
+
+        for (int j = 0; j < n; j++) {
+            if (x != j && g[x][j] != INF) {
+                vl[x] = min(vl[x], vl[j] - g[x][j]);
+            }
+        }
+    }
+
+    cout << "Project time = " << projectTime << endl;
+
+    cout << "ve:\n";
+    for (int i = 0; i < n; i++) {
+        cout << i << ": " << ve[i] << endl;
+    }
+
+    cout << "vl:\n";
+    for (int i = 0; i < n; i++) {
+        cout << i << ": " << vl[i] << endl;
+    }
+
+    cout << "Critical edges:\n";
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i != j && g[i][j] != INF) {
+                long long ee = ve[i];
+                long long el = vl[j] - g[i][j];
+
+                if (ee == el) {
+                    cout << i << " -> " << j << " : " << g[i][j] << endl;
+                }
+            }
+        }
+    }
+}
+
+// Biconnected Components DFS
+void bccDfs(int u, int parent) {
+    dfn[u] = low[u] = ++timerCnt;
+
+    for (int v = 0; v < n; v++) {
+        if (g[u][v] == INF || u == v) continue;
+
+        if (!dfn[v]) {
+            stk[topStack].u = u;
+            stk[topStack].v = v;
+            stk[topStack].w = g[u][v];
+            topStack++;
+
+            bccDfs(v, u);
+
+            low[u] = min(low[u], low[v]);
+
+            if (low[v] >= dfn[u]) {
+                cout << "Biconnected component: ";
+
+                while (topStack > 0) {
+                    Edge e = stk[--topStack];
+                    cout << "(" << e.u << "," << e.v << ") ";
+
+                    if (e.u == u && e.v == v) {
+                        break;
+                    }
+                }
+
+                cout << endl;
+            }
+        }
+        else if (v != parent && dfn[v] < dfn[u]) {
+            stk[topStack].u = u;
+            stk[topStack].v = v;
+            stk[topStack].w = g[u][v];
+            topStack++;
+
+            low[u] = min(low[u], dfn[v]);
+        }
+    }
+}
+
+// 雙連通分量
+void biconnected() {
+    if (dir == 1) {
+        cout << "Only for undirected graph\n";
+        return;
+    }
+
+    memset(dfn, 0, sizeof(dfn));
+    memset(low, 0, sizeof(low));
+
+    timerCnt = 0;
+    topStack = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (!dfn[i]) {
+            bccDfs(i, -1);
+        }
+    }
+}
+
+// 印矩陣
 void matrix() {
     cout << "Matrix:\n";
 
@@ -254,15 +635,14 @@ void matrix() {
 int main() {
     cin >> n >> m >> dir;
 
-    // 初始化矩陣
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             g[i][j] = INF;
         }
+
         g[i][i] = 0;
     }
 
-    // 輸入邊
     for (int i = 0; i < m; i++) {
         int a, b;
         long long w;
@@ -270,6 +650,7 @@ int main() {
         cin >> a >> b >> w;
 
         g[a][b] = w;
+
         edge[i].u = a;
         edge[i].v = b;
         edge[i].w = w;
@@ -290,8 +671,15 @@ int main() {
         cout << "6.Floyd\n";
         cout << "7.Reach\n";
         cout << "8.Matrix\n";
+        cout << "9.Prim\n";
+        cout << "10.Spanning Tree\n";
+        cout << "11.Biconnected Components\n";
+        cout << "12.Bellman-Ford\n";
+        cout << "13.AOV\n";
+        cout << "14.AOE\n";
         cout << "0.Exit\n";
         cout << "Choose: ";
+
         cin >> op;
 
         if (op == 1) {
@@ -327,6 +715,26 @@ int main() {
         }
         else if (op == 8) {
             matrix();
+        }
+        else if (op == 9) {
+            prim();
+        }
+        else if (op == 10) {
+            spanningTree();
+        }
+        else if (op == 11) {
+            biconnected();
+        }
+        else if (op == 12) {
+            int s;
+            cin >> s;
+            bellmanFord(s);
+        }
+        else if (op == 13) {
+            aov();
+        }
+        else if (op == 14) {
+            aoe();
         }
 
     } while (op != 0);
