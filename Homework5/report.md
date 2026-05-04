@@ -13,7 +13,7 @@
 
 ### 功能部分，包含：  
 
-- **用 DFS 和 BFS 來走訪圖  **
+- 用 DFS 和 BFS 來走訪圖  
 - 找出無向圖的連通分量  
 - 建立生成樹（Spanning Tree）  
 - 用 Kruskal 和 Prim 找最小生成樹  
@@ -24,7 +24,7 @@
 - 分析雙連通分量（Biconnected Components）  
 
 ## **解題策略**
-這題我是用鄰接矩陣來存圖，因為寫法比較直觀，也比較方便拿來做 Floyd、Dijkstra、Reach 這些演算法。  
+**這題我是用鄰接矩陣來存圖，因為寫法比較直觀，也比較方便拿來做 Floyd、Dijkstra、Reach 這些演算法。** 
 
 一開始先輸入節點數、邊數，還有判斷是不是有向圖。  
 
