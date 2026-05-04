@@ -32,15 +32,15 @@
 
 ### 程式主要分成幾個部分：  
 
-1.先把圖存在 g[ ][ ] 裡面，沒有邊的地方用 INF 表示。
-2.DFS 和 BFS 用來走訪圖，並用 vis[ ] 紀錄哪些點已經走過。
-3.Connected Components 是重複使用 DFS，找出無向圖裡所有連在一起的區塊。
-4.Kruskal 和 Prim 用來找最小生成樹，主要是看哪些邊可以用最小成本把所有點連起來。
-5.Dijkstra、Bellman-Ford 和 Floyd 是用來找最短路徑。
-6.Reach 是判斷任兩點之間能不能到達。
-7.AOV 是用入度來做拓撲排序，判斷有向圖的執行順序。
-8.AOE 則是用拓撲排序算出最早時間、最晚時間，最後找出關鍵路徑。
-9.Biconnected Components 是用 DFS 搭配 dfn 和 low 來找雙連通分量。
+1.先把圖存在 g[ ][ ] 裡面，沒有邊的地方用 INF 表示。  
+2.DFS 和 BFS 用來走訪圖，並用 vis[ ] 紀錄哪些點已經走過。  
+3.Connected Components 是重複使用 DFS，找出無向圖裡所有連在一起的區塊。  
+4.Kruskal 和 Prim 用來找最小生成樹，主要是看哪些邊可以用最小成本把所有點連起來。  
+5.Dijkstra、Bellman-Ford 和 Floyd 是用來找最短路徑。  
+6.Reach 是判斷任兩點之間能不能到達。  
+7.AOV 是用入度來做拓撲排序，判斷有向圖的執行順序。  
+8.AOE 則是用拓撲排序算出最早時間、最晚時間，最後找出關鍵路徑。  
+9.Biconnected Components 是用 DFS 搭配 dfn 和 low 來找雙連通分量。  
 
 ## 程式設計  
 ```cpp
