@@ -1,6 +1,9 @@
 # 41343127 
+主要負責程式實作與整體架構設計。  
+包含圖的建立（鄰接矩陣與 Edge List）、選單系統整合，以及 DFS、BFS、Kruskal、Prim、Dijkstra、Bellman-Ford、Floyd、Reach、AOV、AOE 與 Biconnected Components 等演算法的撰寫與測試。  
 # 41343150
----
+主要負責報告撰寫與排版整理。  
+包含解題說明、解題策略、申論及開發報告與結論撰寫，以及整體 Markdown 排版與內容整理，確保報告格式一致且易於閱讀。  
 # 作業5  **Graph**
 ## **解題說明**
 這題主要是在做一個圖（Graph）的整合程式，把課堂上學到的幾個常見演算法全部寫在同一支程式裡面。  
