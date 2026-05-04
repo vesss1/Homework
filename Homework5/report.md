@@ -818,9 +818,9 @@ int main() {
 | Graph 建立 | 5 6 0<br>0 1 2<br>0 2 3<br>1 2 1<br>1 3 4<br>2 4 5<br>3 4 2 | Matrix:<br>0 2 3 INF INF<br>2 0 1 4 INF<br>3 1 0 INF 5<br>INF 4 INF 0 2<br>INF INF 5 2 0 |
 | DFS | 1 → 0 | 0 1 2 4 3 |
 | BFS | 2 → 0 | 0 1 2 3 4 |
-| Kruskal | 4 | 1 2 1<br>0 1 2<br>3 4 2<br>1 3 4<br>Total = 9 |
-| Dijkstra | 5 → 0 | 0→0=0<br>0→1=2<br>0→2=3<br>0→3=6<br>0→4=8 |
+| Kruskal | 4 | 1-2 (1)<br>0-1 (2)<br>3-4 (2)<br>1-3 (4)<br>Total = 9 |
+| Dijkstra | 5 → 0 | 0→0 = 0<br>0→1 = 2<br>0→2 = 3<br>0→3 = 6<br>0→4 = 8 |
 | AOV | 13 | 0 1 2 3 4 5 |
-| AOE | 14 | Project time = 10<br>Critical: 0→2→3→4→5 |
+| AOE | 14 | Project time = 10<br>Critical: 0 → 2 → 3 → 4 → 5 |
 
 ---
