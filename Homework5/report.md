@@ -792,6 +792,24 @@ int main() {
 
 ---
 ## 效能分析
+
+| 功能 | 時間複雜度 | 空間複雜度 | 說明 |
+|---|---:|---:|---|
+| DFS | O(V²) | O(V) | 使用鄰接矩陣，每次找相鄰點都要掃一整列 |
+| BFS | O(V²) | O(V) | 使用陣列當 queue，主要時間花在掃描矩陣 |
+| Connected Components | O(V²) | O(V) | 對沒走過的點做 DFS |
+| Spanning Tree | O(V²) | O(V) | 用 BFS 找出生成樹邊 |
+| Kruskal | O(E log E) | O(E + V) | 先排序所有邊，再用 Union-Find 判斷是否成環 |
+| Prim | O(V²) | O(V) | 每次用線性掃描找目前權重最小的點 |
+| Dijkstra | O(V²) | O(V) | 沒有使用 priority queue，所以每次用掃描找最短距離 |
+| Bellman-Ford | O(VE) | O(V) | 重複對所有邊做鬆弛 |
+| Floyd-Warshall | O(V³) | O(V²) | 使用三層迴圈計算所有點對最短路徑 |
+| Transitive Closure | O(V³) | O(V²) | 和 Floyd 類似，用三層迴圈判斷可達性 |
+| AOV | O(V²) | O(V) | 使用鄰接矩陣計算入度與拓撲排序 |
+| AOE | O(V²) | O(V) | 先做拓撲排序，再計算 ve 和 vl |
+| Biconnected Components | O(V²) | O(V + E) | DFS 過程會掃描鄰接矩陣，並用 stack 存邊 |
+| Adjacency Matrix | O(1) | O(V²) | 查詢兩點是否有邊很快，但空間較大 |
+
 **時間複雜度：** `O(1)`
 ---
 
