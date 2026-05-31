@@ -2,12 +2,25 @@
 #include <fstream>
 #include <chrono>
 #include <string>
-#include "timer.h"
-#include "../generator/generator.h"
-#include "../sorting/sorting.h"
-
 using namespace std;
 using namespace chrono;
+
+
+double getElapsedTime(high_resolution_clock::time_point start,
+                      high_resolution_clock::time_point end);
+
+void makeSorted(int a[], int n);
+void makeReverse(int a[], int n);
+void makeRandomPermutation(int a[], int n);
+void makeMergeWorst(int a[], int n);
+void copyArray(int from[], int to[], int n);
+bool checkSorted(int a[], int n);
+
+void insertionSort(int a[], int n);
+void quickSort(int a[], int n);
+void mergeSort(int a[], int n);
+void heapSort(int a[], int n);
+void compositeSort(int a[], int n);
 
 typedef void (*SortFunction)(int[], int);
 
