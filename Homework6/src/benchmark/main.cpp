@@ -2,12 +2,14 @@
 #include <fstream>
 #include <chrono>
 #include <string>
-using namespace std;
-using namespace chrono;
 
+using namespace std;
+using namespace std::chrono;
+
+// function declarations
 
 double getElapsedTime(high_resolution_clock::time_point start,
-                      high_resolution_clock::time_point end);
+    high_resolution_clock::time_point end);
 
 void makeSorted(int a[], int n);
 void makeReverse(int a[], int n);
