@@ -1,376 +1,401 @@
 # 41343127
+
 ---
+
 # 41343150
+
 ---
 
 ## 解題說明
----
-在這份專案中，我們使用 C++ 實作了多種排序演算法，並在不同輸入情況下測量其效能。為了結構化程式，我們將各排序演算法（如插入排序、快速排序、合併排序、堆積排序與複合排序）的實作分別放在不同檔案（分別為 `insertion_sort.cpp`、`quick_sort.cpp`、`merge_sort.cpp`、`heap_sort.cpp`、`composite_sort.cpp`），而產生測試資料的功能放在 `generator.cpp`，計時功能放在 `timer.cpp`。主要的 `benchmark.cpp` 則整合這些元件，針對不同資料大小及案例（已排序、反向排序或隨機排列）執行排序並記錄耗時。
 
-本作業重點是比較多種排序法在**最壞情況**和**平均情況**下的時間差異。舉例來說，插入排序在最壞情況（資料完全反向）下時間複雜度為 $O(n^2)$，而快速排序和合併排序則可達 $O(n \log n)$。透過本專案，我們可實際觀察這些理論差異在不同資料量時的影響。最終結果輸出為 `result.csv`，後續可利用繪圖軟體將結果視覺化。
+在這份專案中，我以 C++ 實作了多種排序演算法，並透過 benchmark 程式比較它們在不同資料規模下的執行時間。依目前倉庫結構，排序演算法分別放在 `src/sorting/insertion_sort.cpp`、`src/sorting/quick_sort.cpp`、`src/sorting/merge_sort.cpp`、`src/sorting/heap_sort.cpp`、`src/sorting/composite_sort.cpp`；測試資料生成放在 `src/generator.cpp`；計時功能放在 `src/benchmark/timer.cpp`；主程式則是 `src/benchmark/main.cpp`。
 
-這是由我們兩人共同完成的大學資料結構課程作業，透過實作與測試加深對各種排序法特性的理解。
+本作業的重點是比較各排序法在 benchmark 中 `Worst` 與 `Average` 兩種情況下的時間差異。需要先說明的是：在這份程式的實作裡，`Worst` 並不完全等於每一種排序法的理論絕對最壞輸入。`InsertionSort` 會使用反向資料，`MergeSort` 會使用 `makeMergeWorst()` 產生的資料，`QuickSort` 與 `HeapSort` 則是從 20 次隨機排列中取最大耗時；`CompositeSort` 會依實際分支選擇對應的 worst 測資。最終結果會輸出為 `result.csv`，方便後續做圖或比對。
+
+這份作業由我與組員共同完成，目的在於把課堂上學到的排序方法與時間複雜度概念實際跑過一次，觀察理論分析和實測結果之間的差異。
+
 ## 程式實作
 
 ### Insertion Sort（插入排序）
 
-```cpp
-void insertionSort(int a[], int n)
-{
-    // 從第二個元素開始插入
-    for(int i = 1; i < n; i++)
+    void insertionSort(int a[], int n)
     {
-        int key = a[i];
-        int j = i - 1;
-
-        // 將比 key 大的元素向右移動
-        while(j >= 0 && a[j] > key)
+        for(int i = 1; i < n; i++)
         {
-            a[j + 1] = a[j];
-            j--;
+            int key = a[i];
+            int j = i - 1;
+
+            while(j >= 0 && a[j] > key)
+            {
+                a[j + 1] = a[j];
+                j--;
+            }
+
+            a[j + 1] = key;
         }
-
-        // 插入到正確位置
-        a[j + 1] = key;
     }
-}
-```
 
-* 將陣列分為已排序區與未排序區。
-* 每次取出一個元素插入已排序區的正確位置。
-* 適合小型資料排序。
+  * 將陣列分成已排序區與未排序區。
+  * 每次取出一個元素插入已排序區的正確位置。
+  * 適合小型資料，或接近排序完成的資料。
 
 ---
 
 ### Merge Sort（合併排序）
 
-```cpp
-void mergeSort(int a[], int n)
-{
-    if(n <= 1)
+    void mergeSort(int a[], int n)
     {
-        return;
-    }
-
-    int* temp = new int[n];
-
-    // 每次將區塊大小擴大兩倍
-    for(int size = 1; size < n; size *= 2)
-    {
-        for(int left = 0; left < n; left += size * 2)
+        if(n <= 1)
         {
-            int mid = min(left + size, n);
-            int right = min(left + size * 2, n);
-
-            mergePart(a, temp, left, mid, right);
+            return;
         }
 
-        // 將合併結果複製回原陣列
-        for(int i = 0; i < n; i++)
+        int* temp = new int[n];
+
+        for(int size = 1; size < n; size = size * 2)
         {
-            a[i] = temp[i];
+            for(int left = 0; left < n; left = left + size * 2)
+            {
+                int mid = min(left + size, n);
+                int right = min(left + size * 2, n);
+
+                mergePart(a, temp, left, mid, right);
+            }
+
+            for(int i = 0; i < n; i++)
+            {
+                a[i] = temp[i];
+            }
         }
+
+        delete[] temp;
     }
 
-    delete[] temp;
-}
-```
-
-```cpp
-void mergePart(int a[], int temp[],
-               int left, int mid, int right)
-{
-    int i = left;
-    int j = mid;
-    int k = left;
-
-    while(i < mid && j < right)
+    void mergePart(int a[], int temp[],
+                   int left, int mid, int right)
     {
-        if(a[i] <= a[j])
+        int i = left;
+        int j = mid;
+        int k = left;
+
+        while(i < mid && j < right)
+        {
+            if(a[i] <= a[j])
+                temp[k++] = a[i++];
+            else
+                temp[k++] = a[j++];
+        }
+
+        while(i < mid)
             temp[k++] = a[i++];
-        else
+
+        while(j < right)
             temp[k++] = a[j++];
     }
 
-    while(i < mid)
-        temp[k++] = a[i++];
-
-    while(j < right)
-        temp[k++] = a[j++];
-}
-```
-
-* 使用分治法(Divide and Conquer)。
-* 將兩個已排序區間合併成一個更大的排序區間。
-* 時間複雜度固定為 O(n log n)。
+  * 使用分治法的概念，但目前程式是 bottom-up 的迭代版本。
+  * 每次把相鄰的已排序區塊合併成更大的排序區塊。
+  * 平均與最壞時間複雜度都維持在 `O(n log n)`，但需要額外暫存空間。
 
 ---
 
 ### Heap Sort（堆積排序）
 
-```cpp
-void percDown(int a[], int i, int n)
-{
-    int child;
-    int temp = a[i];
-
-    while(i * 2 + 1 < n)
+    void percDown(int a[], int i, int n)
     {
-        child = i * 2 + 1;
+        int child;
+        int temp = a[i];
 
-        // 找較大的子節點
-        if(child != n - 1 &&
-           a[child] < a[child + 1])
+        while(i * 2 + 1 < n)
         {
-            child++;
+            child = i * 2 + 1;
+
+            if(child != n - 1 &&
+               a[child] < a[child + 1])
+            {
+                child++;
+            }
+
+            if(temp < a[child])
+            {
+                a[i] = a[child];
+            }
+            else
+            {
+                break;
+            }
+
+            i = child;
         }
 
-        if(temp < a[child])
-        {
-            a[i] = a[child];
-        }
-        else
-        {
-            break;
-        }
-
-        i = child;
+        a[i] = temp;
     }
 
-    a[i] = temp;
-}
-```
-
-```cpp
-void heapSort(int a[], int n)
-{
-    // 建立 Max Heap
-    for(int i = n / 2 - 1; i >= 0; i--)
+    void heapSort(int a[], int n)
     {
-        percDown(a, i, n);
+        for(int i = n / 2 - 1; i >= 0; i--)
+        {
+            percDown(a, i, n);
+        }
+
+        for(int j = n - 1; j > 0; j--)
+        {
+            swap(a[0], a[j]);
+            percDown(a, 0, j);
+        }
     }
 
-    // 依序取出最大值
-    for(int j = n - 1; j > 0; j--)
-    {
-        swap(a[0], a[j]);
-        percDown(a, 0, j);
-    }
-}
-```
-
-* 利用最大堆積(Max Heap)特性排序。
-* 每次將最大值移到陣列尾端。
-* 不需額外儲存空間。
+  * 利用最大堆積（Max Heap）的性質排序。
+  * 每次把目前最大值移到陣列尾端。
+  * 額外空間需求低，時間複雜度穩定。
 
 ---
 
 ### Quick Sort（快速排序）
 
-```cpp
-int medianOfThree(int a[],
-                  int left,
-                  int right)
-{
-    int mid = (left + right) / 2;
-
-    if(a[mid] < a[left])
-        swap(a[left], a[mid]);
-
-    if(a[right] < a[left])
-        swap(a[left], a[right]);
-
-    if(a[right] < a[mid])
-        swap(a[mid], a[right]);
-
-    swap(a[mid], a[right - 1]);
-
-    return a[right - 1];
-}
-```
-
-```cpp
-void quickSortRange(int a[],
-                    int left,
-                    int right)
-{
-    if(left + 10 <= right)
+    int medianOfThree(int a[],
+                      int left,
+                      int right)
     {
-        int pivot =
-            medianOfThree(a, left, right);
+        int mid = (left + right) / 2;
 
-        int i = left;
-        int j = right - 1;
+        if(a[mid] < a[left])
+            swap(a[left], a[mid]);
 
-        while(true)
+        if(a[right] < a[left])
+            swap(a[left], a[right]);
+
+        if(a[right] < a[mid])
+            swap(a[mid], a[right]);
+
+        swap(a[mid], a[right - 1]);
+
+        return a[right - 1];
+    }
+
+    void quickSortRange(int a[],
+                        int left,
+                        int right)
+    {
+        if(left + 10 <= right)
         {
-            while(a[++i] < pivot){}
-            while(a[--j] > pivot){}
+            int pivot =
+                medianOfThree(a, left, right);
 
-            if(i < j)
-                swap(a[i], a[j]);
-            else
-                break;
+            int i = left;
+            int j = right - 1;
+
+            while(true)
+            {
+                while(a[++i] < pivot){}
+                while(a[--j] > pivot){}
+
+                if(i < j)
+                    swap(a[i], a[j]);
+                else
+                    break;
+            }
+
+            swap(a[i], a[right - 1]);
+
+            quickSortRange(a, left, i - 1);
+            quickSortRange(a, i + 1, right);
         }
-
-        swap(a[i], a[right - 1]);
-
-        quickSortRange(a, left, i - 1);
-        quickSortRange(a, i + 1, right);
+        else
+        {
+            smallInsertionSort(a, left, right);
+        }
     }
-    else
+
+    void quickSort(int a[], int n)
     {
-        smallInsertionSort(a, left, right);
+        if(n > 1)
+        {
+            quickSortRange(a, 0, n - 1);
+        }
     }
-}
-```
 
-```cpp
-void quickSort(int a[], int n)
-{
-    if(n > 1)
-    {
-        quickSortRange(a, 0, n - 1);
-    }
-}
-```
-
-* 使用 Median-of-Three 選 Pivot。
-* 將資料分成小於與大於 Pivot 兩部分。
-* 再遞迴處理左右子區間。
+  * 使用 Median-of-Three 選 pivot，降低常見壞案例的機率。
+  * 小區段改用 insertion sort 收尾，減少遞迴與常數成本。
+  * 平均情況通常很快，但理論最壞時間仍是 `O(n^2)`。
 
 ---
 
 ### Composite Sort（混合排序）
 
-```cpp
-void compositeSort(int a[], int n)
-{
-    if(n <= 30)
+    void compositeSort(int a[], int n)
     {
-        insertionSort(a, n);
+        if(n <= 30)
+        {
+            insertionSort(a, n);
+        }
+        else
+        {
+            mergeSort(a, n);
+        }
     }
-    else
-    {
-        mergeSort(a, n);
-    }
-}
-```
 
-* 小型資料使用 Insertion Sort。
-* 大型資料使用 Merge Sort。
-* 結合兩種排序法的優點，提高整體效率。
+  * 小型資料使用 Insertion Sort。
+  * 大型資料使用 Merge Sort。
+  * 這份實作結合的是 insertion 與 merge，不是 insertion 與 quicksort。
 
 ---
 
 ### Benchmark 效能測試
 
-```cpp
-double testOneTime(SortFunction sortFunction,
-                   int data[],
-                   int n)
-{
-    int* a = new int[n];
+    typedef void (*SortFunction)(int[], int);
 
-    copyArray(data, a, n);
+    void buildWorstData(string name, int a[], int n)
+    {
+        if(name == "InsertionSort")
+        {
+            makeReverse(a, n);
+        }
+        else if(name == "MergeSort")
+        {
+            makeMergeWorst(a, n);
+        }
+        else if(name == "CompositeSort")
+        {
+            if(n <= 30)
+            {
+                makeReverse(a, n);
+            }
+            else
+            {
+                makeMergeWorst(a, n);
+            }
+        }
+        else
+        {
+            makeRandomPermutation(a, n);
+        }
+    }
 
-    auto start =
-        high_resolution_clock::now();
+    double testOneTime(SortFunction sortFunction,
+                       int data[],
+                       int n)
+    {
+        int* a = new int[n];
 
-    sortFunction(a, n);
+        copyArray(data, a, n);
 
-    auto end =
-        high_resolution_clock::now();
+        auto start =
+            high_resolution_clock::now();
 
-    delete[] a;
+        sortFunction(a, n);
 
-    return getElapsedTime(start, end);
-}
-```
+        auto end =
+            high_resolution_clock::now();
 
-* 使用 `chrono` 函式庫進行計時。
-* 測量每種排序法的執行時間。
-* 統計 Worst Case 與 Average Case。
-* 最後輸出至 `result.csv` 供後續效能分析與繪圖。
+        if(!checkSorted(a, n))
+        {
+            cout << "sort error" << endl;
+        }
+
+        delete[] a;
+
+        return getElapsedTime(start, end);
+    }
+
+  * 使用 `chrono` 函式庫進行計時。
+  * 排序前先複製陣列，避免原始測資被前一次排序改動。
+  * `Worst` 與 `Average` 的資料生成方式會依排序法而不同。
+  * 最後輸出到 `result.csv` 做後續分析。
 
 ## 解題策略
-我們的程式主要流程如下：
 
-- **資料生成**：`generator.cpp` 中提供了多種生成函式，可產生已排序、反向排序和隨機排列的整數陣列。對於特定最壞情況，我們針對合併排序實作了特殊最差案例產生函式（模擬分割不均的情境）。
-- **複製陣列**：為了確保每種排序演算法都操作相同的輸入資料，執行排序前會先複製一份原始陣列。這樣做可以避免先前排序改變資料而影響後續測試。
-- **執行排序並計時**：針對每種排序方法，我們利用 `timer.cpp` 提供的 `getElapsedTime` 函式，在排序前後記錄時間差。排序演算法函式（插入、三分位元快速、迭代合併、堆積、複合）會直接作用於陣列，上述流程由 `benchmark.cpp` 統籌呼叫。
-- **組合排序策略**：`compositeSort` 函式是一種混合演算法，對於較小的陣列（小於設定門檻）採用插入排序，以減少遞迴開銷；對於較大的陣列則使用三分位元快速排序，以加速排序過程。
-- **結果檢查**：排序完成後會呼叫 `checkSorted` 函式確認陣列是否已正確排序，以確保演算法實作正確無誤。
-- **數據收集**：每次測試後將資料大小與排序耗時寫入 `result.csv`。`benchmark.cpp` 採用迴圈依序處理不同的 N 值（例如 500、1000、2000、…、5000），並針對最壞情況與平均情況兩種資料分別執行，以完整蒐集效能數據。
+這份程式的主要流程如下：
 
-以上步驟確保我們對每個排序演算法在不同測試情境下都能公平測試並記錄時間，方便後續進行效能分析與比較。
+  * 資料生成：`src/generator.cpp` 提供了 `makeSorted()`、`makeReverse()`、`makeRandomPermutation()` 與 `makeMergeWorst()`。其中 `makeMergeWorst()` 的用途是生成對 merge 過程較不利的輸入順序，不是模擬分割不均。
+  * 複製陣列：為了避免排序直接改動原始測資，我在每次正式計時前都先複製一份資料，再把排序函式套在複本上。
+  * 執行排序並計時：`src/benchmark/timer.cpp` 提供 `getElapsedTime()`，在排序前後記錄時間差。
+  * 組合排序策略：`compositeSort()` 對小於等於 30 的陣列使用 insertion sort，超過 30 則直接交給 merge sort。
+  * 結果檢查：每次排序完都會呼叫 `checkSorted()`，確認結果是否為升序。
+  * 數據收集：`src/benchmark/main.cpp` 會依序測試 `500`、`1000`、`2000`、`3000`、`4000`、`5000` 六種資料規模，並把結果寫入 `result.csv`。
+
+另外要補充一點：目前 benchmark 在不同排序之間，並不保證共用完全相同的 20 組隨機輸入，因為每個排序都會各自呼叫 `makeRandomPermutation()`。這不會影響程式正確性，但如果要做更嚴格的橫向比較，之後還可以再把測資共享機制補上。
 
 ## 效能分析
-排序演算法的時間與空間複雜度如下表所示：  
 
-| 排序演算法       | 平均時間複雜度    | 最壞時間複雜度    | 空間複雜度 |
+排序演算法的時間與空間複雜度如下表所示：
+
+| 排序演算法 | 平均時間複雜度 | 最壞時間複雜度 | 空間複雜度 |
 |---------------|--------------|--------------|---------|
-| 插入排序         | `O(n^2)`     | `O(n^2)`     | `O(1)`  |
-| 三分位元快速排序 | `O(n log n)` | `O(n^2)`     | `O(log n)` |
-| 迭代合併排序     | `O(n log n)` | `O(n log n)` | `O(n)`  |
-| 堆積排序         | `O(n log n)` | `O(n log n)` | `O(1)`  |
-| 複合排序         | `O(n log n)` | `O(n^2)`     | `O(n)`  |
+| 插入排序 | `O(n^2)` | `O(n^2)` | `O(1)` |
+| Median-of-Three 快速排序 | `O(n log n)` | `O(n^2)` | `O(log n)` |
+| 迭代合併排序 | `O(n log n)` | `O(n log n)` | `O(n)` |
+| 堆積排序 | `O(n log n)` | `O(n log n)` | `O(1)` |
+| 複合排序 | `O(n log n)` | `O(n log n)` | `O(n)` |
 
-由理論可知，插入排序的複雜度為二次成長，對大規模資料會非常緩慢；快速排序和合併排序平均上屬於 `O(n log n)`，執行時間增長較平緩。複合排序在實作上對小輸入使用插入排序，因此可縮短小規模的開銷；對大輸入則仍維持快速排序的效率。實驗結果符合這些預期：隨著資料量增加，插入排序的耗時曲線明顯較陡峭，而快速排序、合併排序與堆積排序的耗時變化較平穩，複合排序通常在中等到大型資料下速度最佳。
+由理論來看，插入排序在資料量變大後會最明顯地變慢；快速排序、合併排序和堆積排序則會維持在 `n log n` 等級。這份 `CompositeSort` 的實作因為大於 30 的資料會直接走 merge sort，所以它的整體特性更接近「insertion + merge」的混合，而不是「insertion + quicksort」。
 
-以下是 `result.csv` 的部分範例（示意）：  
+另外，`result.csv` 裡的 `Worst` 欄位要解讀成這份 benchmark 設計下的 worst 測試結果，而不是所有演算法都已經拿到理論上的絕對最壞輸入。特別是 `QuickSort` 與 `HeapSort`，目前是以 20 次隨機排列中的最大耗時當作實驗上的 worst 值。
+
+以下是 `result.csv` 的輸出格式示意：
+
 ```csv
-排序方法,資料大小,Worst(秒),Average(秒)
-InsertionSort,5000,0.0143,0.0099
-QuickSort,5000,0.00046,0.00049
-MergeSort,5000,0.00068,0.00072
-HeapSort,5000,0.00123,0.00130
-CompositeSort,5000,0.00050,0.00053
-```  
-從此表可看出，當資料大小為 5000 時，插入排序的耗時遠高於其他方法（毫秒級），而快速排序和複合排序的平均耗時接近，顯示它們的效能表現優異。這些數據可用來繪製折線圖或長條圖，以視覺化比較各排序法的表現差異。
+Sort,Size,Case,Time
+InsertionSort,500,Worst,<measured_time>
+InsertionSort,500,Average,<measured_time>
+QuickSort,500,Worst,<measured_time>
+QuickSort,500,Average,<measured_time>
+MergeSort,500,Worst,<measured_time>
+MergeSort,500,Average,<measured_time>
+```
+
+從格式上可以看出，這份程式使用的是長表格式，比較適合後續用試算表、Python 或其他工具做繪圖與分組分析。
 
 ## 測試與驗證
-為了驗證各排序法的正確性與測試架構的完整性，我們在實作中使用了多種測試資料，包括：  
 
-| 測試案例   | 資料示例                    |
+目前這份 repository 內 benchmark 直接涵蓋的資料型態如下：
+
+| 測試案例 | 資料示例 |
 |----------|--------------------------|
-| 已排序    | {1, 2, 3, 4, 5}          |
-| 反向排序  | {5, 4, 3, 2, 1}          |
-| 隨機排列  | {8, 3, 5, 1, 9, 2, 7, 4, 6} |
-| 重複元素  | {5, 1, 3, 5, 2, 1, 4, 3} |
-| 包含負數  | {-3, 5, 0, -1, 2, -5, 4} |
+| 反向排序 | `{5, 4, 3, 2, 1}` |
+| 隨機排列 | `{8, 3, 5, 1, 9, 2, 7, 4, 6}` |
+| Merge Worst 輸入 | 由 `makeMergeWorst()` 自動生成 |
 
-我們對上述範例與多組隨機資料進行排序，並使用 `checkSorted` 函式檢查結果是否為升序。所有排序方法都通過了基本正確性測試。
+我在程式流程中會對上述測資進行排序，並在每次排序後呼叫 `checkSorted()` 確認結果是否為升序。就目前倉庫的內容來看，重複元素與負數並沒有被正式放進 benchmark 流程；如果要進一步補強正確性驗證，建議另外寫一個小型測試程式把這些案例補上。
 
-實際測試時，`benchmark.cpp` 迴圈中採用多組資料大小（如 500、1000、2000 … 5000），針對每種情況重複執行排序並記錄時間。下圖為測試流程示意：  
+實際測試時，`src/benchmark/main.cpp` 會對多組資料大小重複執行排序並記錄時間。流程如下：
 
 ```mermaid
 graph TD
     A[開始測試] --> B[生成測試資料]
-    B --> C[執行各排序並計時]
+    B --> C[複製資料並執行排序]
     C --> D[檢查排序正確性]
     D --> E[輸出結果到 CSV]
     E --> F[測試結束]
-```  
+```
 
-上述流程確保每個排序方法在不同的測試情境與資料量下都被執行與驗證，可得到完整的效能數據。
+這樣的流程可以確保每一筆輸出的時間都有對應的資料生成、計時與排序驗證步驟。若後續要擴充，也可以直接在這個流程上加新測資或更多統計欄位。
 
 ## 結論
-本專案驗證了不同排序演算法在各種情境下的效能差異：隨著資料量增加，插入排序耗時以二次曲線大幅上升，表現最差；快速排序、合併排序與堆積排序則維持近 `O(n log n)` 的增長，曲線較為平滑。實驗中複合排序通常有最佳效能，因為它結合了插入與快速排序的優點，對小陣列加速且對大陣列效率高。
 
-建議繪製折線圖以更直觀呈現結果：橫軸為資料規模 `N`，縱軸為耗時，分別畫出每種排序法的曲線。從圖中可清楚比較不同演算法隨輸入大小的效能差異，例如插入排序曲線最陡峭、複合排序曲線最低。此外，也可針對最壞情況與平均情況分別繪圖，強調各排序法在不同情境下的差別。
+本專案確實呈現了不同排序演算法在資料量變大時的差異：插入排序會隨著 `n` 增加而明顯拉開耗時；快速排序、合併排序與堆積排序則維持在較平穩的 `n log n` 等級。這和課堂上對這幾種演算法的理論分析是吻合的。
 
-整體而言，此專案達到了預期目標：實作了多種排序演算法並分析其效能，使我們更了解各方法的特性與適用情境。
+需要特別修正的一點是：這份專案中的 `CompositeSort` 不是 insertion + quicksort，而是 insertion + merge sort。以目前門檻值 `30` 與測試規模 `500 ~ 5000` 來看，它大多會走 merge sort 分支，所以實測表現通常也會更接近 merge sort。它可能表現很好，但不應該直接寫成「一定是最快」或「等同 quicksort 的混合版」。
+
+整體而言，這份作業完成了多種排序法的實作與 benchmark，比較適合拿來理解不同排序法在同一份測試框架下的行為差異。若之後要再往上補強，我會優先考慮讓所有排序共用同一批隨機測資，並補上重複元素與負數的正式測試。
 
 ## 申論及開發報告
-- **工作分配**：本專案由兩人合作完成，我們決定分工執行：一人負責實作插入排序和合併排序，另一人負責快速排序、堆積排序與複合排序。測試資料生成和效能記錄部分則共同維護，以利程式整合。
-- **編譯與執行**：程式使用 C++17 編譯（例如 `g++ -std=c++17`），需要將主程式 `benchmark.cpp`、`timer.cpp`、`generator.cpp` 以及所有排序演算法的 `.cpp` 檔案一起編譯。例如：  
-  ```bash
-  g++ -std=c++17 src/benchmark/benchmark.cpp src/benchmark/timer.cpp src/generator/generator.cpp \
-      src/sorting/insertion_sort.cpp src/sorting/quick_sort.cpp src/sorting/merge_sort.cpp src/sorting/heap_sort.cpp src/sorting/composite_sort.cpp \
-      -o sorting_project
-  ```  
-  執行 `./sorting_project` 即可開始測試。
-- **注意事項**：`timer_test.cpp` 只用於獨立測試計時功能，請勿與 `benchmark.cpp` 同時編譯（否則會有兩個 `main` 函式衝突）。程式中使用了 `<chrono>` 計時庫，因此編譯時請開啟 C++11 以上標準，並確認程式開頭以 `using namespace std::chrono;` 引入時間函式。
-- **問題與限制**：由於隨機資料使用標準庫亂數產生，測試結果可能因每次執行的隨機性而略有差異；排序耗時也會因硬體差異而不同。此外，複合排序的切換門檻值是手動設定的，可根據實際情況調整，但本作業中使用的是預設值。
-- **成果反思**：兩人合作使工作分配更有效率，我們在實作中學到了如何整合多個功能模組並處理編譯與測試中的問題。整體而言，專案執行順利並達到預期目標，後續可在此基礎上進一步優化或擴充功能。
+
+  * 工作分配：這份專案由我與組員合作完成。分工上，一人負責插入排序與合併排序，另一人負責快速排序、堆積排序與複合排序；測資生成與 benchmark 整理則共同處理。
+  * 編譯與執行：本倉庫未明確限制編譯器版本；若以目前資料結構直接編譯，我建議使用下列指令：
+
+```bash
+g++ -std=c++17 \
+  src/benchmark/main.cpp src/benchmark/timer.cpp src/generator.cpp \
+  src/sorting/insertion_sort.cpp src/sorting/quick_sort.cpp \
+  src/sorting/merge_sort.cpp src/sorting/heap_sort.cpp \
+  src/sorting/composite_sort.cpp \
+  -O2 -o sorting_project
+```
+
+執行 `./sorting_project` 即可開始測試。
+
+  * 注意事項：本倉庫目前沒有 `timer_test.cpp`。正式編譯只要把主程式、計時、資料生成與各排序檔一起編譯即可。
+  * 問題與限制：`makeRandomPermutation()` 使用固定種子 `41343133`，所以同一環境下資料序列本身可重現；真正可能變動的是執行時間。此外，`QuickSort` 與 `HeapSort` 的 `Worst` 欄位目前採用的是 20 次隨機測試中的最大值，屬於實驗上的近似 worst 值，不是數學上保證的絕對最壞值。
+  * 未指定項目：執行平台未指定、編譯器版本未指定、是否要一併提交實際 `result.csv` 與圖表未指定。若要先採穩定預設，我建議使用 Linux / macOS / WSL，並以 `g++` 或 `clang++` 搭配 `-std=c++17 -O2` 編譯。
+  * 成果反思：這次把文件和程式對齊後，整份專案的邏輯清楚很多。對我來說，最大的收穫不只是把排序寫完，而是學到怎麼讓「程式、報告、輸出格式」三者保持一致，避免到最後交作業時出現內容對不起來的問題。
