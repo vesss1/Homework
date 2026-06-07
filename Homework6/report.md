@@ -1,18 +1,15 @@
-# 41343127
-
----
-
+# 41343127 
+主要負責程式實作與整體架構設計。  
+包含圖的建立（鄰接矩陣與 Edge List）、選單系統整合，以及 DFS、BFS、Kruskal、Prim、Dijkstra、Bellman-Ford、Floyd、Reach、AOV、AOE 與 Biconnected Components 等演算法的撰寫與測試。  
 # 41343150
-
----
+主要負責報告撰寫與排版整理。  
+包含解題說明、解題策略、申論及開發報告與結論撰寫，以及整體 Markdown 排版與內容整理，確保報告格式一致且易於閱讀。  
 
 ## 解題說明
 
-在這份專案中，我以 C++ 實作了多種排序演算法，並透過 benchmark 程式比較它們在不同資料規模下的執行時間。依目前倉庫結構，排序演算法分別放在 `src/sorting/insertion_sort.cpp`、`src/sorting/quick_sort.cpp`、`src/sorting/merge_sort.cpp`、`src/sorting/heap_sort.cpp`、`src/sorting/composite_sort.cpp`；測試資料生成放在 `src/generator.cpp`；計時功能放在 `src/benchmark/timer.cpp`；主程式則是 `src/benchmark/main.cpp`。
+在這份專案中，我們以 C++ 實作多種排序演算法，並透過 benchmark 程式比較它們在不同資料規模下的執行時間。依目前倉庫結構，排序演算法分別放在 `src/sorting/insertion_sort.cpp`、`src/sorting/quick_sort.cpp`、`src/sorting/merge_sort.cpp`、`src/sorting/heap_sort.cpp`、`src/sorting/composite_sort.cpp`；測試資料生成放在 `src/generator.cpp`；計時功能放在 `src/benchmark/timer.cpp`；主程式則是 `src/benchmark/main.cpp`。
 
-本作業的重點是比較各排序法在 benchmark 中 `Worst` 與 `Average` 兩種情況下的時間差異。需要先說明的是：在這份程式的實作裡，`Worst` 並不完全等於每一種排序法的理論絕對最壞輸入。`InsertionSort` 會使用反向資料，`MergeSort` 會使用 `makeMergeWorst()` 產生的資料，`QuickSort` 與 `HeapSort` 則是從 20 次隨機排列中取最大耗時；`CompositeSort` 會依實際分支選擇對應的 worst 測資。最終結果會輸出為 `result.csv`，方便後續做圖或比對。
-
-這份作業由我與組員共同完成，目的在於把課堂上學到的排序方法與時間複雜度概念實際跑過一次，觀察理論分析和實測結果之間的差異。
+本作業的重點是比較各排序法在 benchmark 中 `Worst` 與 `Average` 兩種情況下的時間差異。需要說明的是：在這份程式的實作裡，`Worst` 並不完全等於每一種排序法的理論絕對最壞輸入。`InsertionSort` 會使用反向資料，`MergeSort` 會使用 `makeMergeWorst()` 產生的資料，`QuickSort` 與 `HeapSort` 則是從 20 次隨機排列中取最大耗時；`CompositeSort` 會依實際分支選擇對應的 worst 測資。最終結果會輸出為 `result.csv`，方便後續做圖或比對。
 
 ## 程式實作
 
