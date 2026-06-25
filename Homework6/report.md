@@ -373,17 +373,29 @@ graph TD
 程式執行後會在終端機印出各排序法在不同資料大小下的測試時間，同時也會將結果寫入 result.csv。以下為其中一段執行結果範例：
 
 Sort            Size    Worst       Average
+
 InsertionSort   500     0.00041     0.00022
+
 QuickSort       500     0.00004     0.00003
+
 MergeSort       500     0.00006     0.00005
+
 HeapSort        500     0.00008     0.00007
+
 CompositeSort   500     0.00005     0.00005
+
 InsertionSort   1000    0.00162     0.00089
+
 QuickSort       1000    0.00008     0.00007
+
 MergeSort       1000    0.00012     0.00011
+
 HeapSort        1000    0.00017     0.00015
+
 CompositeSort   1000    0.00011     0.00010
+
 InsertionSort   2000    0.00651     0.00354
+
 QuickSort       2000    0.00017     0.00015
 MergeSort       2000    0.00027     0.00024
 HeapSort        2000    0.00036     0.00033
