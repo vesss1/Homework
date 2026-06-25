@@ -397,38 +397,67 @@ CompositeSort   1000    0.00011     0.00010
 InsertionSort   2000    0.00651     0.00354
 
 QuickSort       2000    0.00017     0.00015
+
 MergeSort       2000    0.00027     0.00024
+
 HeapSort        2000    0.00036     0.00033
+
 CompositeSort   2000    0.00025     0.00023
+
 InsertionSort   3000    0.01460     0.00793
+
 QuickSort       3000    0.00027     0.00023
+
 MergeSort       3000    0.00042     0.00038
+
 HeapSort        3000    0.00056     0.00051
+
 CompositeSort   3000    0.00039     0.00036
+
 InsertionSort   4000    0.02598     0.01415
+
 QuickSort       4000    0.00036     0.00032
+
 MergeSort       4000    0.00058     0.00052
+
 HeapSort        4000    0.00077     0.00070
+
 CompositeSort   4000    0.00054     0.00050
+
 InsertionSort   5000    0.04051     0.02207
+
 QuickSort       5000    0.00047     0.00041
+
 MergeSort       5000    0.00074     0.00068
+
 HeapSort        5000    0.00098     0.00091
+
 CompositeSort   5000    0.00069     0.00064
+
 result.csv finished
 
 輸出的 result.csv 內容格式如下：
 
 Sort,Size,Case,Time
+
 InsertionSort,500,Worst,0.00041
+
 InsertionSort,500,Average,0.00022
+
 QuickSort,500,Worst,0.00004
+
 QuickSort,500,Average,0.00003
+
 MergeSort,500,Worst,0.00006
+
 MergeSort,500,Average,0.00005
+
 HeapSort,500,Worst,0.00008
+
 HeapSort,500,Average,0.00007
+
 CompositeSort,500,Worst,0.00005
+
 CompositeSort,500,Average,0.00005
 
 從輸出結果可以看到，當資料量越大時，Insertion Sort 的執行時間增加最明顯，尤其在 Worst Case 時成長速度最快。Quick Sort、Merge Sort、Heap Sort 和 Composite Sort 的時間變化相對比較穩定，這也符合它們大多數情況下接近 O(n log n) 的特性。
