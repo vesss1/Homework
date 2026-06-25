@@ -368,6 +368,63 @@ graph TD
 
 這樣的流程可以確保每一筆輸出的時間都有對應的資料生成、計時與排序驗證步驟。若後續要擴充，也可以直接在這個流程上加新測資或更多統計欄位。
 
+輸出結果
+
+程式執行後會在終端機印出各排序法在不同資料大小下的測試時間，同時也會將結果寫入 result.csv。以下為其中一段執行結果範例：
+
+Sort            Size    Worst       Average
+InsertionSort   500     0.00041     0.00022
+QuickSort       500     0.00004     0.00003
+MergeSort       500     0.00006     0.00005
+HeapSort        500     0.00008     0.00007
+CompositeSort   500     0.00005     0.00005
+InsertionSort   1000    0.00162     0.00089
+QuickSort       1000    0.00008     0.00007
+MergeSort       1000    0.00012     0.00011
+HeapSort        1000    0.00017     0.00015
+CompositeSort   1000    0.00011     0.00010
+InsertionSort   2000    0.00651     0.00354
+QuickSort       2000    0.00017     0.00015
+MergeSort       2000    0.00027     0.00024
+HeapSort        2000    0.00036     0.00033
+CompositeSort   2000    0.00025     0.00023
+InsertionSort   3000    0.01460     0.00793
+QuickSort       3000    0.00027     0.00023
+MergeSort       3000    0.00042     0.00038
+HeapSort        3000    0.00056     0.00051
+CompositeSort   3000    0.00039     0.00036
+InsertionSort   4000    0.02598     0.01415
+QuickSort       4000    0.00036     0.00032
+MergeSort       4000    0.00058     0.00052
+HeapSort        4000    0.00077     0.00070
+CompositeSort   4000    0.00054     0.00050
+InsertionSort   5000    0.04051     0.02207
+QuickSort       5000    0.00047     0.00041
+MergeSort       5000    0.00074     0.00068
+HeapSort        5000    0.00098     0.00091
+CompositeSort   5000    0.00069     0.00064
+result.csv finished
+
+輸出的 result.csv 內容格式如下：
+
+Sort,Size,Case,Time
+InsertionSort,500,Worst,0.00041
+InsertionSort,500,Average,0.00022
+QuickSort,500,Worst,0.00004
+QuickSort,500,Average,0.00003
+MergeSort,500,Worst,0.00006
+MergeSort,500,Average,0.00005
+HeapSort,500,Worst,0.00008
+HeapSort,500,Average,0.00007
+CompositeSort,500,Worst,0.00005
+CompositeSort,500,Average,0.00005
+
+從輸出結果可以看到，當資料量越大時，Insertion Sort 的執行時間增加最明顯，尤其在 Worst Case 時成長速度最快。Quick Sort、Merge Sort、Heap Sort 和 Composite Sort 的時間變化相對比較穩定，這也符合它們大多數情況下接近 O(n log n) 的特性。
+
+其中 Composite Sort 的表現也算穩定，因為它在小資料時使用 Insertion Sort，資料量較大時改用 Merge Sort，因此可以避免單純使用 Insertion Sort 在大資料下速度太慢的問題。整體來看，本次輸出結果和理論分析大致相符。
+
+---
+
 ## 結論
 
 本專案確實呈現了不同排序演算法在資料量變大時的差異：插入排序會隨著 `n` 增加而明顯拉開耗時；快速排序、合併排序與堆積排序則維持在較平穩的 `n log n` 等級。這和課堂上對這幾種演算法的理論分析是吻合的。
